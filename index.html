@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,103 +8,110 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="#" onclick="showProducts()">Shopping Cart</a>
-        <a href="#" class="btn btn-primary" onclick="showCart()">Cart (<span id="cart-count">0</span>)</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#" onclick="showProducts()">Shopping Cart</a>
+            <a href="#" class="btn btn-primary" onclick="showCart()">Cart (<span id="cart-count">0</span>)</a>
+        </div>
+    </nav>
+
+    <!-- Product List Section -->
+    <div id="product-section" class="container mt-4">
+        <div id="products-list" class="row"></div>
     </div>
-</nav>
 
-<!-- Product List Section -->
-<div id="product-section" class="container mt-4">
-    <div id="products-list" class="row"></div>
-</div>
+    <!-- Cart Section -->
+    <div id="cart-section" class="container mt-4" style="display: none;">
+        <h2>Shopping Cart</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="cart-items"></tbody>
+        </table>
+        <p class="fw-bold">Total: $<span id="cart-total">0.00</span></p>
+        <button class="btn btn-danger" onclick="clearCart()">Clear Cart</button>
+        <button class="btn btn-success" id="checkout-button" onclick="showCheckout()" style="display: none;">Proceed to
+            Checkout</button>
+    </div>
 
-<!-- Cart Section -->
-<div id="cart-section" class="container mt-4" style="display: none;">
-    <h2>Shopping Cart</h2>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="cart-items"></tbody>
-    </table>
-    <p class="fw-bold">Total: $<span id="cart-total">0.00</span></p>
-    <button class="btn btn-danger" onclick="clearCart()">Clear Cart</button>
-    <button class="btn btn-success" onclick="showCheckout()">Proceed to Checkout</button>
-</div>
+    <!-- Checkout Section -->
+    <div id="checkout-section" class="container mt-4" style="display: none;">
+        <h2>Order Summary</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="checkout-items"></tbody>
+        </table>
+        <p class="fw-bold">Subtotal: $<span id="checkout-subtotal">0.00</span></p>
+        <p class="fw-bold">Discount: -$<span id="checkout-discount">0.00</span></p>
+        <p class="fw-bold">Final Total: $<span id="checkout-total">0.00</span></p>
 
-<!-- Checkout Section -->
-<div id="checkout-section" class="container mt-4" style="display: none;">
-    <h2>Order Summary</h2>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody id="checkout-items"></tbody>
-    </table>
-    <p class="fw-bold">Total: $<span id="checkout-total">0.00</span></p>
-
-    <h2>Billing Information</h2>
-    <form id="checkout-form">
+        <h2>Promo Code</h2>
         <div class="mb-3">
-            <label class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="name" required>
+            <label for="promo-code" class="form-label">Enter Promo Code</label>
+            <input type="text" class="form-control" id="promo-code">
+            <button type="button" class="btn btn-primary mt-2" onclick="applyPromoCode()">Apply</button>
+            <div id="promo-message" class="mt-2"></div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Address</label>
-            <input type="text" class="form-control" id="address" required>
-        </div>
-        <button type="submit" class="btn btn-success">Place Order</button>
-    </form>
-</div>
 
-<script src="js/products.js"></script>
-<script src="js/cart.js"></script>
-<script src="js/ui.js"></script>
+        <h2>Billing Information</h2>
+        <form id="checkout-form">
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="name" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Address</label>
+                <input type="text" class="form-control" id="address" required>
+            </div>
+            <button type="submit" class="btn btn-success">Place Order</button>
+        </form>
+    </div>
 
-<script>
-    // Load the cart from localStorage or initialize an empty array
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    <script>
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let appliedPromoCode = null;
 
-    document.addEventListener("DOMContentLoaded", function () {
-        fetchProducts();  // Load products when the page loads
-        updateCartCount(); // Update navbar cart count on page load
-    });
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchProducts();
+            updateCartCount();
+            updateCheckoutButtonVisibility(); // Check cart on page load
+        });
 
-    // Fetch products and display them
-    function fetchProducts() {
-        fetch("https://fakestoreapi.com/products")
-            .then(response => response.json())
-            .then(products => displayProducts(products))
-            .catch(error => console.error("Error fetching products:", error));
-    }
+        function fetchProducts() {
+            fetch("https://fakestoreapi.com/products")
+                .then(response => response.json())
+                .then(products => displayProducts(products))
+                .catch(error => console.error("Error fetching products:", error));
+        }
 
-    // Display products in the product list section
-    function displayProducts(products) {
-        const productContainer = document.getElementById("products-list");
-        productContainer.innerHTML = "";
+        function displayProducts(products) {
+            const productContainer = document.getElementById("products-list");
+            productContainer.innerHTML = "";
 
-        products.forEach(product => {
-            const productCard = `
+            products.forEach(product => {
+                const productCard = `
                 <div class="col-md-4">
                     <div class="card">
                         <img src="${product.image}" class="card-img-top" alt="${product.title}">
@@ -116,53 +124,51 @@
                     </div>
                 </div>
             `;
-            productContainer.innerHTML += productCard;
-        });
-    }
-
-    // Add item to the cart
-    function addToCart(id, name, price, image) {
-        let existingItem = cart.find(item => item.id === id);
-
-        if (existingItem) {
-            existingItem.quantity += 1;
-        } else {
-            cart.push({ id, name, price, image, quantity: 1 });
+                productContainer.innerHTML += productCard;
+            });
         }
 
-        updateCart(); // Save to localStorage
-        updateCartCount(); // Update navbar count instantly
-    }
+        function addToCart(id, name, price, image) {
+            let existingItem = cart.find(item => item.id === id);
 
-    // Update cart count in the navbar
-    function updateCartCount() {
-        const cartCountElement = document.getElementById("cart-count");
-        if (cartCountElement) {
-            let totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            cartCountElement.textContent = totalItems;
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id, name, price, image, quantity: 1 });
+            }
+
+            updateCart();
+            updateCartCount();
+            updateCheckoutButtonVisibility(); // Update button visibility after adding to cart
         }
-    }
 
-    // Update the cart in the UI
-    function updateCart() {
-        localStorage.setItem("cart", JSON.stringify(cart));
-        displayCart();
-        updateCartCount(); // Ensure navbar count is correct
-    }
+        function updateCartCount() {
+            const cartCountElement = document.getElementById("cart-count");
+            if (cartCountElement) {
+                let totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                cartCountElement.textContent = totalItems;
+            }
+        }
 
-    // Display the cart items in the UI
-    function displayCart() {
-        const cartItemsContainer = document.getElementById("cart-items");
-        const cartTotal = document.getElementById("cart-total");
+        function updateCart() {
+            localStorage.setItem("cart", JSON.stringify(cart));
+            displayCart();
+            updateCartCount();
+            updateCheckoutButtonVisibility(); // Update button visibility after cart update
+        }
 
-        cartItemsContainer.innerHTML = "";
-        let total = 0;
+        function displayCart() {
+            const cartItemsContainer = document.getElementById("cart-items");
+            const cartTotal = document.getElementById("cart-total");
 
-        cart.forEach((item, index) => {
-            let itemTotal = item.price * item.quantity;
-            total += itemTotal;
+            cartItemsContainer.innerHTML = "";
+            let total = 0;
 
-            cartItemsContainer.innerHTML += `
+            cart.forEach((item, index) => {
+                let itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                cartItemsContainer.innerHTML += `
                 <tr>
                     <td><img src="${item.image}" width="50"> ${item.name}</td>
                     <td>$${item.price.toFixed(2)}</td>
@@ -174,97 +180,158 @@
                     <td><button class="btn btn-danger btn-sm" onclick="removeFromCart(${index})">Remove</button></td>
                 </tr>
             `;
-        });
+            });
 
-        cartTotal.textContent = total.toFixed(2);
-    }
-
-    // Update item quantity in the cart
-    function updateQuantity(index, quantity) {
-        if (quantity < 1) {
-            alert("Quantity cannot be less than 1.");
-            return;
+            cartTotal.textContent = total.toFixed(2);
         }
-        cart[index].quantity = parseInt(quantity);
-        updateCart();
-    }
 
-    // Remove item from the cart
-    function removeFromCart(index) {
-        if (confirm("Are you sure you want to remove this item?")) {
-            cart.splice(index, 1);
+        function updateQuantity(index, quantity) {
+            if (quantity < 1) {
+                alert("Quantity cannot be less than 1.");
+                return;
+            }
+            cart[index].quantity = parseInt(quantity);
             updateCart();
         }
-    }
 
-    // Clear the cart
-    function clearCart() {
-        if (confirm("Are you sure you want to clear the cart?")) {
-            cart = [];
-            updateCart();
+        function removeFromCart(index) {
+            if (confirm("Are you sure you want to remove this item?")) {
+                cart.splice(index, 1);
+                updateCart();
+                updateCheckoutButtonVisibility(); // Update button visibility after removing from cart
+            }
         }
-    }
 
-    // Show the product section
-    function showProducts() {
-        document.getElementById("product-section").style.display = "block";
-        document.getElementById("cart-section").style.display = "none";
-        document.getElementById("checkout-section").style.display = "none";
-    }
+        function clearCart() {
+            if (confirm("Are you sure you want to clear the cart?")) {
+                cart = [];
+                updateCart();
+                updateCheckoutButtonVisibility(); // Update button visibility after clearing cart
+            }
+        }
 
-    // Show the cart section
-    function showCart() {
-        document.getElementById("product-section").style.display = "none";
-        document.getElementById("cart-section").style.display = "block";
-        document.getElementById("checkout-section").style.display = "none";
-    }
+        function updateCheckoutButtonVisibility() {
+            const checkoutButton = document.getElementById("checkout-button");
+            if (checkoutButton) {
+                if (cart.length > 0) {
+                    checkoutButton.style.display = "inline-block"; // Show button if cart has items
+                } else {
+                    checkoutButton.style.display = "none"; // Hide button if cart is empty
+                }
+            }
+        }
 
-    // Show the checkout section
-    function showCheckout() {
-        document.getElementById("product-section").style.display = "none";
-        document.getElementById("cart-section").style.display = "none";
-        document.getElementById("checkout-section").style.display = "block";
+        function showProducts() {
+            document.getElementById("product-section").style.display = "block";
+            document.getElementById("cart-section").style.display = "none";
+            document.getElementById("checkout-section").style.display = "none";
+        }
 
-        displayCheckoutItems();
-    }
+        function showCart() {
+            document.getElementById("product-section").style.display = "none";
+            document.getElementById("cart-section").style.display = "block";
+            document.getElementById("checkout-section").style.display = "none";
+        }
 
-    // Display checkout items
-    function displayCheckoutItems() {
-        const checkoutItemsContainer = document.getElementById("checkout-items");
-        const checkoutTotal = document.getElementById("checkout-total");
+        function showCheckout() {
+            document.getElementById("product-section").style.display = "none";
+            document.getElementById("cart-section").style.display = "none";
+            document.getElementById("checkout-section").style.display = "block";
 
-        checkoutItemsContainer.innerHTML = "";
-        let total = 0;
+            displayCheckoutItems();
+        }
 
-        cart.forEach(item => {
-            let itemTotal = item.price * item.quantity;
-            total += itemTotal;
+        function displayCheckoutItems() {
+            const checkoutItemsContainer = document.getElementById("checkout-items");
+            const checkoutSubtotal = document.getElementById("checkout-subtotal");
+            const checkoutDiscount = document.getElementById("checkout-discount");
+            const checkoutTotal = document.getElementById("checkout-total");
 
-            checkoutItemsContainer.innerHTML += `
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.price * item.quantity;
+            });
+
+            const discountAmount = (subtotal * (appliedPromoCode === "ostad10" ? 10 : (appliedPromoCode === "ostad5" ? 5 : 0))) / 100;
+            const finalTotal = subtotal - discountAmount;
+
+            checkoutSubtotal.textContent = subtotal.toFixed(2);
+            checkoutDiscount.textContent = discountAmount.toFixed(2);
+            checkoutTotal.textContent = finalTotal.toFixed(2);
+
+            checkoutItemsContainer.innerHTML = "";
+            cart.forEach(item => {
+                checkoutItemsContainer.innerHTML += `
                 <tr>
                     <td><img src="${item.image}" width="50"> ${item.name}</td>
                     <td>$${item.price.toFixed(2)}</td>
                     <td>${item.quantity}</td>
-                    <td>$${itemTotal.toFixed(2)}</td>
+                    <td>$${(item.price * item.quantity).toFixed(2)}</td>
                 </tr>
             `;
+            });
+        }
+
+        function applyPromoCode() {
+            const promoCodeInput = document.getElementById("promo-code").value.trim();
+            const promoMessage = document.getElementById("promo-message");
+
+            if (appliedPromoCode) {
+                promoMessage.textContent = "Promo code has already been applied!";
+                promoMessage.classList.add("text-danger");
+                return;
+            }
+
+            if (promoCodeInput === "ostad10") {
+                appliedPromoCode = "ostad10";
+                updateCheckoutSummary(10);
+                promoMessage.textContent = "Promo code applied successfully! 10% discount.";
+                promoMessage.classList.remove("text-danger");
+                promoMessage.classList.add("text-success");
+            } else if (promoCodeInput === "ostad5") {
+                appliedPromoCode = "ostad5";
+                updateCheckoutSummary(5);
+                promoMessage.textContent = "Promo code applied successfully! 5% discount.";
+                promoMessage.classList.remove("text-danger");
+                promoMessage.classList.add("text-success");
+            } else {
+                promoMessage.textContent = "Invalid promo code.";
+                promoMessage.classList.remove("text-success");
+                promoMessage.classList.add("text-danger");
+            }
+        }
+
+        function updateCheckoutSummary(discountPercentage = 0) {
+            const checkoutSubtotal = document.getElementById("checkout-subtotal");
+            const checkoutDiscount = document.getElementById("checkout-discount");
+            const checkoutTotal = document.getElementById("checkout-total");
+
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.price * item.quantity;
+            });
+
+            const discountAmount = (subtotal * discountPercentage) / 100;
+            const finalTotal = subtotal - discountAmount;
+
+            checkoutSubtotal.textContent = subtotal.toFixed(2);
+            checkoutDiscount.textContent = discountAmount.toFixed(2);
+            checkoutTotal.textContent = finalTotal.toFixed(2);
+        }
+
+        document.getElementById("checkout-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            alert("Order placed successfully!");
+
+            localStorage.removeItem("cart");
+            cart = [];
+            updateCartCount();
+            updateCheckoutButtonVisibility(); // Update button visibility after placing order
+            showProducts();
         });
-
-        checkoutTotal.textContent = total.toFixed(2);
-    }
-
-    // Handle checkout form submission
-    document.getElementById("checkout-form").addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        alert("Order placed successfully!");
-
-        localStorage.removeItem("cart");
-        cart = [];
-        updateCartCount();
-        showProducts();  // Return to products page
-    });
-</script>
+    </script>
 
 </body>
+
 </html>
